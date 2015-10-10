@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.juno.mapper.CustomMapper">
+	<!-- keyProperty是Java对象的属性名 -->
+	<insert id="doCreate" parameterType="WugeCustomInfo">
+		insert info wuge_custom_info
+		  (custom_id,
+		   custom_type,
+		   custom_amount,
+		   custom_time,
+		   custom_desc,
+		   custom_cust01,
+		   custom_cust02,
+		   custom_cust03)
+		values
+		  (custom_seq.nextval, #{customType}, #{customAmount}, sysdate, #{customDesc}, #{customCust01}, #{customCust02}, #{customCust03})
+	</insert>
+	
+	<update id="doUpdate" parameterType="WugeCustomInfo">
+		update wuge_custom_info i
+		   set i.custom_type   = #{customType},
+		       i.custom_amount = #{customAmount},
+		       i.custom_time   = #{customTime},
+		       i.custom_desc   = #{customDesc},
+		       i.custom_cust01 = #{customCust01},
+		       i.custom_cust02 = #{customCust02},
+		       i.custom_cust03 = #{customCust03}
+		 where i.custom_id = #{customId}		
+	</update>
+	
+	<delete id="doDelete" parameterType="java.lang.String">
+		delete from wuge_custom_info i where i.custom_id = #{customId}
+	</delete>
+	
+	<!-- -->
+	<select id="selectById" parameterType="java.lang.String" resultType="WugeCustomInfo">
+		select * from wuge_custom_info i where i.custom_id = #{customId}
+	</select>
+	 
+	 
+	<select id="selectAllForPages" parameterType="WugeCustomInfo" resultType="WugeCustomInfo">
+		 select *
+		   from (select t.*, rownum rn
+		           from (select f.custom_id,
+		                        f.custom_type,
+		                        f.custom_amount,
+		                        f.custom_time,
+		                        f.custom_desc,
+		                        f.custom_cust01,
+		                        f.custom_cust02,
+		                        f.custom_cust03
+		                   from wuge_custom_info f
+		                  where 1 = 1
+		                  
+		                  <if test="customType != null">
+		                  	and f.custom_type = #{customType}
+		                  </if>
+		                  <if test="startDate != null">
+		                    and f.custom_time between #{startDate} and #{endDate}
+		                  </if>
+	</select>
+	
+	<select id="selectCountForPages" parameterType="WugeCustomInfo" resultType="int">
+		
+
+	</select>
+	
+</mapper>

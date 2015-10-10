@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 
+	属性	描述
+	id				在命名空间中唯一的标识符,可以被用来引用这条语句。
+	parameterType	将会传入这条语句的参数类的完全限定名或别名。
+	parameterMap	这是引用外部 parameterMap 的已经被废弃的方法。使用内联参数映射和 parameterType 属性。
+	resultType		从这条语句中返回的期望类型的类的完全限定名或别名。注意集合情形,那应该是集合可以包含的类型,而不能是集合本身。使用 resultType 或 resultMap,但不能同时使用。
+	resultMap		命名引用外部的 resultMap。返回 map 是 MyBatis 最具力量的特性, 对其有一个很好的理解的话, 许多复杂映射的情形就能被解决了。使用 resultMap 或 resultType,但不能同时使用。
+	flushCache		将其设置为 true,不论语句什么时候被调用,都会导致缓存被清空。默认值:false。
+	useCache		将其设置为 true, 将会导致本条语句的结果被缓存。默认值: true。
+	timeout			这个设置驱动程序等待数据库返回请求结果,并抛出异常时间的最大等待值。默认不设置(驱动自行处理)
+	fetchSize		这是暗示驱动程序每次批量返回的结果行数。默认不设置(驱动自行处理)。
+	statementType	STA TEMENT,PREPARED 或 CALLABLE 的一种。这会让 MyBatis 使用选择使用 Statement,PreparedStatement 或 CallableStatement。默认值:PREPARED。
+	resultSetType	FORWARD_ONLY|SCROLL_SENSITIVE|SCROLL_INSENSITIVE 中的一种。默认是不设置(驱动自行处理)。
+	databaseId		In case there is a configured databaseIdProvider, MyBatis will load all statements with no databaseId attribute or with a databaseId that matches the current one. If case the same statement if found with and without the databaseId the latter will be discarded.
+
+	useGeneratedKeys	(仅 对 insert 有 用) 这 会 告 诉 MyBatis 使 用 JDBC 的 getGeneratedKeys 方法来取出由数据(比如:像 MySQL 和 SQL Server 这样的数据库管理系统的自动递增字段)内部生成的主键。默认值:false。
+ 	keyProperty			(仅对 insert 有用) 标记一个属性, MyBatis 会通过 getGeneratedKeys 或者通过 insert 语句的 selectKey 子元素设置它的值。默认: 不设置。
+	keyColumn			(仅对 insert 有用) 标记一个属性, MyBatis 会通过 getGeneratedKeys 或者通过 insert 语句的 selectKey 子元素设置它的值。默认: 不设置。
+	
+	如果你的数据库支持自动生成主键的字段(比如 MySQL 和 SQL Server) ,那么你可以设置 useGeneratedKeys=”true”,而且设置 keyProperty 到你已经做好的目标属性上。
+	<insert id="insertAuthor" parameterType="domain.blog.Author" useGeneratedKeys="true"     keyProperty="id">
+	    insert into Author (username,password,email,bio)
+  		values (#{username},#{password},#{email},#{bio})
+    </insert>
+	MyBatis 有另外一种方法来处理数据库不支持自动生成类型,或者可能 JDBC 驱动不支持自动生成主键时的主键生成问题。
+
+	这里有一个简单(甚至很傻)的示例,它可以生成一个随机 ID(可能你不会这么做, 但是这展示了 MyBatis 处理问题的灵活性,因为它并不真的关心 ID 的生成):
+
+	<insert id="insertAuthor" parameterType="domain.blog.Author">
+	   <selectKey keyProperty="id" resultType="int" order="BEFORE">
+	        select CAST(RANDOM()*1000000 as INTEGER) a from SYSIBM.SYSDUMMY1
+  	   </selectKey>
+  	   insert into Author
+    		(id, username, password, email,bio, favourite_section)
+  		values
+    		(#{id}, #{username}, #{password}, #{email}, #{bio}, #{favouriteSection,jdbcType=VARCHAR})
+    </insert>
+	在上面的示例中,selectKey 元素将会首先运行,Author 的 id 会被设置,然后插入语句会被调用。这给你了一个简单的行为在你的数据库中来处理自动生成的主键, 而不需要使你的 Java 代码变得复杂。
+ -->
+
+
+<mapper namespace="com.juno.mapper.EmpMapper">
+	<!-- keyProperty是Java对象的属性名 -->
+	<insert id="insertEmp" parameterType="Emp">
+		insert into emp(empno, ename, job, mgr, hiredate, sal, comm, deptno) values (#{empno}, #{ename}, #{job}, #{mgr}, #{hiredate}, #{sal}, #{comm}, #{deptno})
+	</insert>
+	
+	<update id="updateEmp" parameterType="Emp">
+		update emp e set e.ename = #{ename}, e.job = #{job}, e.mgr = #{job}, e.hiredate = #{hiredate}, e.sal = #{sal}, e.comm = #{comm}, e.deptno = #{deptno} where e.empno = #{empno}
+	</update>
+	
+	<delete id="deleteEmp" parameterType="int">
+		delete from emp where empno = #{empno}
+	</delete>
+	
+	<!-- -->
+	<select id="selectEmp" parameterType="int" resultType="Emp">
+		select * from emp where empno = #{empno}
+	</select>
+	 
+	 
+	<select id="selectAllEmp" resultType="Emp">
+		select * from emp
+	</select>
+	
+	<select id="selectAllCount" resultType="int">
+		select count(*) from emp
+	</select>
+	
+	<select id="selectForMap" resultType="Emp">
+		select * from emp
+	</select>
+</mapper>

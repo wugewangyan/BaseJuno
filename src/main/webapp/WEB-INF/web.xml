@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="2.5" 
+	xmlns="http://java.sun.com/xml/ns/javaee" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee 
+	http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
+  <display-name>JUNO</display-name>	
+  <welcome-file-list>
+    <welcome-file>index.jsp</welcome-file>
+  </welcome-file-list>
+  
+  <context-param>  
+        <param-name>contextConfigLocation</param-name>  
+        <!-- 应用上下文配置文件 -->  
+        <param-value>/WEB-INF/spring-config/spring-*.xml</param-value>  
+    </context-param>
+  
+  <listener>  
+        <listener-class>
+        	org.springframework.web.context.ContextLoaderListener
+        </listener-class>  
+    </listener> 
+  
+  <!-- 使用Spring Security来加强Web应用的URL访问安全，DelegatingFilterProxy负责将HTTP请求过滤委派给
+  	   实现java.util.logging.Filter接口的Spring Bean。默认情况下，委派给名称与<filter-name>属性相同的
+  	 一个Bean，但是你可以在targetBeanName初始化参数中覆盖Bean名称，因为Spring Security在你启用Web应用安全
+  	性时会自动的用springSecurityFilterChain这个名称配置过滤器链，所以你可以将这个名称用于DelegatingFilterProxy实例
+   
+  <filter>
+  	<filter-name>springSecurityFilterChain</filter-name>
+  	<filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+  </filter>
+  
+  <filter-mapping>
+  	<filter-name>springSecurityFilterChain</filter-name>
+  	<url-pattern>/*</url-pattern>
+  </filter-mapping>
+  -->
+  
+  <!-- 配置加载proxool配置文件 -->
+    <servlet>
+        <servlet-name>proxoolServletConfigurator</servlet-name>
+        <servlet-class>
+            org.logicalcobwebs.proxool.configuration.ServletConfigurator
+        </servlet-class>
+        <init-param>
+            <param-name>xmlFile</param-name>
+            <param-value>WEB-INF/proxool-conf.xml</param-value>
+        </init-param>
+        <load-on-startup>0</load-on-startup>
+    </servlet>
+     
+    <!-- 配置proxool资源监控程序 -->
+    <servlet>
+        <servlet-name>adminP</servlet-name>
+         <servlet-class>
+             org.logicalcobwebs.proxool.admin.servlet.AdminServlet
+         </servlet-class>
+    </servlet>
+    <servlet-mapping>
+       <servlet-name>adminP</servlet-name>
+       <url-pattern>/adminp</url-pattern>
+    </servlet-mapping>
+    
+    <!-- 配置spring核心servlet -->  
+    <servlet>  
+        <servlet-name>juno</servlet-name>  
+        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class> 
+        <init-param>
+	        <param-name>contextConfigLocation</param-name>
+	        <param-value>/WEB-INF/juno-servlet.xml</param-value>
+	    </init-param> 
+        <load-on-startup>1</load-on-startup>  
+    </servlet>  
+    <!-- url-pattern配置为/，不带文件后缀，会造成其它静态文件(js，css等)不能访问。如配为*.do，则不影响静态文件的访问 -->  
+    <servlet-mapping>  
+        <servlet-name>juno</servlet-name>  
+        <url-pattern>/</url-pattern>  
+    </servlet-mapping> 
+    
+    
+    <filter>
+    	<filter-name>characterEncodingFilter</filter-name>
+    	<filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+    	<init-param>
+    		<param-name>encoding</param-name>
+    		<param-value>utf-8</param-value>
+    	</init-param>
+    </filter>
+    
+    <filter-mapping>
+    	<filter-name>characterEncodingFilter</filter-name>
+    	<url-pattern>/*</url-pattern>
+    </filter-mapping>
+    
+</web-app>

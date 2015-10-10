@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:p="http://www.springframework.org/schema/p"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:aop="http://www.springframework.org/schema/aop"
+    xmlns:tx="http://www.springframework.org/schema/tx"
+    xsi:schemaLocation="
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/tx
+        http://www.springframework.org/schema/tx/spring-tx.xsd
+        http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop.xsd">
+	
+	<!-- 使用Spring-WS 暴露一个RMI服务，使用RmiServiceExporter将实现serviceInterface接口的实现类暴露为一个RMI服务
+		 必须为RmiServiceExporter实例配置多个属性，包括服务名称，服务接口和输出的服务对象。你可以将IoC容器中配置的任何Bean输出为RMI
+		 服务，RMIServiceExporter将创建一个RMI代理封装这个Bean，并将其绑定到RMI注册表。代理接受来自RMI注册表的调用请求时，他将调用Bean上对应的方法。
+	 
+	<bean class = "org.springframework.remoting.rmi.RmiServiceExporter">
+		<property name="serviceName" value="WeatherService"></property>
+		<property name="serviceInterface" value="com.juno.ws.springws.WeatherService"></property>
+		<property name="service" ref = "weatherServiceImpl"></property>
+	</bean>-->
+
+	<bean name = "/WeatherServiceHessian" class="org.springframework.remoting.caucho.HessianServiceExporter">
+		<property name="service" ref="weatherServiceImpl"></property>
+		<property name="serviceInterface" value="com.juno.ws.springws.WeatherService"></property>
+	</bean>
+	
+	
+</beans>

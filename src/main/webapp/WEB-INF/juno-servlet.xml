@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:p="http://www.springframework.org/schema/p"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xsi:schemaLocation="
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd">
+
+	<!-- 
+	启动包扫描功能，以便注册带有@Controller、@Service、@repository、@Component等注解的类成为spring的bean
+	扫描各个类确定@Controller和@RequestMapping注解的存在。只有带有这些注解的类才能够像控制器一样操作 -->
+    <context:component-scan base-package="com.juno.controller"/>
+    
+	
+	<!-- 测量请求执行的时间，单位为毫秒 -->
+	<bean id = "measurementTimeInterceptor" class = "com.juno.interceptor.MeasurementTimeInterceptor"/>
+	
+	<!-- 这个拦截器检测当前HTTP请求中是否存在一个特殊的参数，这个参数名可以用这个拦截器的paramName属性定制，如果这样一个参数存在于当前请求中，这个拦截器根据参数值修改用户区域 -->
+	<bean id = "localeChangeInterceptor" class = "org.springframework.web.servlet.i18n.LocaleChangeInterceptor">
+		<property name="paramName" value = "language"></property>
+	</bean>
+	
+	
+	<!-- 
+		<mvc:annotation-driven /> 会自动注册DefaultAnnotationHandlerMapping与AnnotationMethodHandlerAdapter 两个bean,
+		是spring MVC为@Controllers分发请求所必须的。
+	 -->
+	<!-- 在WEB应用上下文注册一个DefaultAnnotationHandlerMapping和一个AnnotationMethodHandlerAdapter实例，
+	     这些实例分别在类级别和方法级别处理@RequestMapping注解 -->
+	<bean class = "org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping">
+		<property name="interceptors">
+			<list>
+				<ref bean="measurementTimeInterceptor"/>
+				<ref bean="localeChangeInterceptor"/>
+			</list>
+		</property>
+	</bean>
+	
+	<bean class = "org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter">
+		<property name="webBindingInitializer"><!-- 绑定属性编辑器 -->
+			<bean class = "com.juno.util.JunoBindingInitializer"></bean>
+		</property>
+	</bean>
+	
+	
+	
+	<!-- 配置视图解析策略，将逻辑视图名称解析为视图实现以供显示 (注意此处的顺序的重要性)-->
+	<bean class = "org.springframework.web.servlet.view.ResourceBundleViewResolver">
+		<property name="basename" value="views"></property>
+		<property name="order" value = "0"></property>
+	</bean>
+	
+	<bean class = "org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="viewClass" value = "org.springframework.web.servlet.view.JstlView"></property>
+		<property name="prefix" value = "/WEB-INF/jsp/"></property>
+		<property name="suffix" value = ".jsp"></property>
+		<property name="order" value = "1"></property>
+	</bean>
+	
+	<!-- 根据Session解析区域-->
+	<bean id = "localeResolver" class = "org.springframework.web.servlet.i18n.SessionLocaleResolver">
+		<property name="defaultLocale" value = "zh"></property>
+	</bean>
+	
+	<!-- ResourceBundleMessageSource 实现从不同区域所用的不同资源集中解析信息，使用basename所指定的名字（messages）来获取以messages为基名称的资源文件 -->
+	<bean id = "messageSource" class = "org.springframework.context.support.ResourceBundleMessageSource">
+		<property name="basename" value="messages"></property>
+	</bean>
+	
+	<!-- 配置异常解析器，将不同类别的异常映射到不同的错误页面 -->
+	<bean class = "org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
+		<property name="exceptionMappings">
+			<props>
+				<prop key="java.lang.NullPointerException">exception/nullPointException</prop>
+			</props>
+		</property>
+		
+		<!-- defaultErrorView 用于定义名为error的默认视图，这个视图用于发生未在exceptionMapping中映射的异常情况 -->
+		<property name="defaultErrorView" value="exception/unknownError"></property>
+	</bean>
+	
+	<!-- 支持附件上传 -->
+	<bean id = "multipartResolver" class = "org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<property name="maxUploadSize" value="100000"></property>
+	</bean>
+	
+</beans>

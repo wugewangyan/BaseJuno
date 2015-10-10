@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:p="http://www.springframework.org/schema/p"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:aop="http://www.springframework.org/schema/aop"
+    xmlns:tx="http://www.springframework.org/schema/tx"
+    xsi:schemaLocation="
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/tx
+        http://www.springframework.org/schema/tx/spring-tx.xsd
+        http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop.xsd">
+	
+	<!-- Spring 还提供了MethodInvokingJobDetailFactoryBean,让你定义一个任务，执行特定对象的一个方法 -->
+	<bean id = "junoExampleQuartzTaskJob" class = "org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject" ref="junoExampleQuartzTask"></property>
+		<property name="targetMethod" value = "selectAll"></property>
+	</bean>
+
+	<!-- 通过配置一个CronTriggerBean在Bean配置一个Quartz CronTrigger对象，这个Bean需要对JobDetail对象的引用 -->
+	<bean id = "junoExampleQuartzTaskTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+		<property name="jobDetail" ref = "junoExampleQuartzTaskJob"></property>
+		<property name="cronExpression" value=" 0 35 15 * * ? "></property>
+	</bean>
+
+	<!-- 通过配置一个SchedulerFactoryBean实例，创建一个Scheduler对象，用于运行你的触发器，你可以在这个工厂Bean中指定多个触发器 -->
+	<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+		<property name="triggers">
+			<list>
+				<ref bean="junoExampleQuartzTaskTrigger"/>
+			</list>
+		</property>
+	</bean>
+
+
+	
+	
+</beans>
