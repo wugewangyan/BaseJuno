@@ -54,7 +54,8 @@ public class EmpController {
 			return "emp/add_emp";
 		}else{
 			this.empService.insert(emp);
-			status.setComplete();  // 清除SessionAttribute中的emp对象
+			// 清除SessionAttribute中的emp对象
+			status.setComplete();  
 			return "redirect:list";
 		}
 	}
