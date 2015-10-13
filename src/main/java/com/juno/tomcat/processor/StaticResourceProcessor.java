@@ -1,6 +1,9 @@
-package com.juno.tomcat;
+package com.juno.tomcat.processor;
 
 import java.io.IOException;
+
+import com.juno.tomcat.connector.http.HttpRequest;
+import com.juno.tomcat.connector.http.HttpResponse;
 
 public class StaticResourceProcessor {
 

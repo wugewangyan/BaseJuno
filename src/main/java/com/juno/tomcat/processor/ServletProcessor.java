@@ -1,4 +1,4 @@
-package com.juno.tomcat;
+package com.juno.tomcat.processor;
 
 import java.io.File;
 import java.io.IOException;
@@ -9,13 +9,17 @@ import java.net.URLStreamHandler;
 
 import javax.servlet.Servlet;
 
+import com.juno.tomcat.connector.http.HttpRequest;
+import com.juno.tomcat.connector.http.HttpRequestFacade;
+import com.juno.tomcat.connector.http.HttpResponse;
+import com.juno.tomcat.connector.http.HttpResponseFacade;
 import com.juno.tomcat.constants.Constants;
 
 public class ServletProcessor {
 	
 	
 	public void process(HttpRequest request, HttpResponse response){
-		String uri = request.getUri();
+		String uri = request.getRequestURL().toString();
 		String servletName = uri.substring(uri.lastIndexOf("/") + 1);
 		URLClassLoader loader = null;
 		
@@ -40,8 +44,8 @@ public class ServletProcessor {
 		}
 		
 		Servlet servlet = null;
-		RequestFacade requestFacade = new RequestFacade(request);
-		ResponseFacade responseFacade = new ResponseFacade(response);
+		HttpRequestFacade requestFacade = new HttpRequestFacade(request);
+		HttpResponseFacade responseFacade = new HttpResponseFacade(response);
 		try {
 			servlet = (Servlet) myClass.newInstance();
 			servlet.service(requestFacade, responseFacade);
