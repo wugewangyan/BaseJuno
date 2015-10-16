@@ -8,6 +8,11 @@ import java.net.Socket;
 public class HttpConnector implements Runnable {
 
 	private boolean stopped = false;
+	private String scheme = "http";
+	
+	public String getScheme(){
+		return this.scheme;
+	}
 	
 	@Override
 	public void run() {

@@ -7,12 +7,12 @@ import java.net.Socket;
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 
-import org.apache.catalina.util.RequestUtil;
 import org.apache.tomcat.util.res.StringManager;
 
 import com.juno.tomcat.constants.Constants;
 import com.juno.tomcat.processor.ServletProcessor;
 import com.juno.tomcat.processor.StaticResourceProcessor;
+import com.juno.tomcat.util.RequestUtil;
 
 public class HttpProcessor {
 
