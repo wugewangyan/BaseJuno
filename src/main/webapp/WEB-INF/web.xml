@@ -12,7 +12,7 @@
   <context-param>  
         <param-name>contextConfigLocation</param-name>  
         <!-- 应用上下文配置文件 -->  
-        <param-value>/WEB-INF/spring-config/spring-*.xml</param-value>  
+        <param-value>classpath*:/spring/spring-*.xml</param-value>  
     </context-param>
   
   <listener>  
@@ -37,38 +37,13 @@
   </filter-mapping>
   -->
   
-  <!-- 配置加载proxool配置文件 -->
-    <servlet>
-        <servlet-name>proxoolServletConfigurator</servlet-name>
-        <servlet-class>
-            org.logicalcobwebs.proxool.configuration.ServletConfigurator
-        </servlet-class>
-        <init-param>
-            <param-name>xmlFile</param-name>
-            <param-value>WEB-INF/proxool-conf.xml</param-value>
-        </init-param>
-        <load-on-startup>0</load-on-startup>
-    </servlet>
-     
-    <!-- 配置proxool资源监控程序 -->
-    <servlet>
-        <servlet-name>adminP</servlet-name>
-         <servlet-class>
-             org.logicalcobwebs.proxool.admin.servlet.AdminServlet
-         </servlet-class>
-    </servlet>
-    <servlet-mapping>
-       <servlet-name>adminP</servlet-name>
-       <url-pattern>/adminp</url-pattern>
-    </servlet-mapping>
-    
     <!-- 配置spring核心servlet -->  
     <servlet>  
         <servlet-name>juno</servlet-name>  
         <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class> 
         <init-param>
 	        <param-name>contextConfigLocation</param-name>
-	        <param-value>/WEB-INF/juno-servlet.xml</param-value>
+	        <param-value>classpath*:juno-servlet.xml</param-value>
 	    </init-param> 
         <load-on-startup>1</load-on-startup>  
     </servlet>  

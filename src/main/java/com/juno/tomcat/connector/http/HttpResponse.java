@@ -10,6 +10,7 @@ import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -584,5 +585,29 @@ public class HttpResponse implements HttpServletResponse {
 public void setCharacterEncoding(String arg0) {
 	// TODO Auto-generated method stub
 	
+}
+
+@Override
+public int getStatus() {
+	// TODO Auto-generated method stub
+	return 0;
+}
+
+@Override
+public String getHeader(String name) {
+	// TODO Auto-generated method stub
+	return null;
+}
+
+@Override
+public Collection<String> getHeaders(String name) {
+	// TODO Auto-generated method stub
+	return null;
+}
+
+@Override
+public Collection<String> getHeaderNames() {
+	// TODO Auto-generated method stub
+	return null;
 }
 }

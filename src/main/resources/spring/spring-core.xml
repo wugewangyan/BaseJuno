@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/tx
+        http://www.springframework.org/schema/tx/spring-tx.xsd
+        http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+	<!-- 启用AspectJ注解支持 -->
+	<aop:aspectj-autoproxy />
+
+	<!-- 自动扫描组件，需要把controller去掉，否则影响事务管理 -->
+	<context:component-scan base-package="com.juno">
+		<context:exclude-filter type="regex"
+			expression="com.juno.controller.*" />
+	</context:component-scan>
+
+	<!-- 开启一个基于注解的事务管理器，通知带有@Transactional注解的方法和类 -->
+	<tx:annotation-driven transaction-manager="transactionManager" />
+
+	<!-- Spring 织入非IoC容器的类 Spring 在其他方面库中包含了一个AspectJ方面AnnotationBeanConfigurerAspect,用于配置对象依赖， 
+		即使这些对象在IoC容器之外创建。对于在IoC容器之外创建的类，你必须用@Configurable注解该类，声明该类对象在Spring IoC容器中可以配置。 
+		<context:spring-configured/> -->
+
+	<!-- 在加载时将这个方面植入你的在IoC容器之外的类 <context:load-time-weaver/> -->
+
+	<!-- PropertyPlaceholderConfigurer用于替换元数据，可以使用占位符${}来引用system.properties中的配置信息 -->
+	<bean
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="locations">
+			<list>
+				<value>classpath:system.properties</value>
+			</list>
+		</property>
+	</bean>
+
+	<!-- 配置数据库连接池，使用Proxool连接池 -->
+	<bean id="dataSource"
+		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName">
+			<value>com.mysql.jdbc.Driver</value>
+		</property>
+		<property name="url">
+			<value>jdbc:mysql://10.100.141.39:3306/${db.schema}</value>
+		</property>
+		<property name="username" value="pay_trade"></property>
+		<property name="password" value="pay_trade@123"></property>
+	</bean>
+
+
+	<!-- 配置数据库连接池，使用Proxool连接池 
+	<bean id="dataSource"
+		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName">
+			<value>com.mysql.jdbc.Driver</value>
+		</property>
+		<property name="url">
+			<value>jdbc:mysql://localhost:3306/juno</value>
+		</property>
+		<property name="username" value="root"></property>
+		<property name="password" value="wuge@1990"></property>
+	</bean>-->
+	
+
+	<!-- 配置jdbcTemplate，并注入数据源 -->
+	<bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+		<property name="dataSource" ref="dataSource"></property>
+	</bean>
+
+
+	<!-- 声明事物管理器,适用于JDBC -->
+	<bean id="transactionManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource"></property>
+	</bean>
+
+	<!-- 配置事务模板，在编程式事务管理时使用 -->
+	<bean id="transactionTemplate"
+		class="org.springframework.transaction.support.TransactionTemplate">
+		<property name="transactionManager" ref="transactionManager"></property>
+	</bean>
+
+	<!-- 创建SqlSessionFactory,同时指定数据源 在Mybatis的所有操作都是基于SqlSession的，而SqlSession是由SqlSessionFactory来产生的，SqlSessionFactory又是 
+		由SqlSessionFactoryBuilder来产生的。 但是在MyBatis-spring中是基于SqlSessionFactoryBean的，其封装了一个SqlSessionFactoryBean，在这个Bean中还是通过 
+		SqlSessionFactoryBuilder来建立对应的sqlSessionFacotry,进而获取对应的Sqlsession的 typeAliasesPackage 
+		指定将该包下的model定义别名，默认别名区model的简单类名 -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource"></property>
+		<property name="mapperLocations" value="classpath:com/juno/model/*.xml"></property>
+		<property name="typeAliasesPackage" value="com.juno.model"></property>
+		<property name="plugins">
+			<bean class="com.juno.interceptor.PageInterceptor"></bean>
+		</property>
+	</bean>
+
+
+	<!-- Mybatis-Spring 提供了一个实现了SqlSession接口的SqlSessionTemplate类，他是线程安全的，可以被多个DAO同时使用，同事他还跟Spring的事务进行了关联， 
+		确保了当前被使用的SqlSession是一个已经和Spring的事务进行绑定了。而且它还可以自己管理Session的提交和关闭，当使用了Spring的事务管理机制后，SqlSession还可以 
+		跟着Spring的事务一起提交和回滚。 -->
+	<bean id="sqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
+		<constructor-arg index="0" ref="sqlSessionFactory"></constructor-arg>
+	</bean>
+
+
+	<!-- com.juno.mapper.EmpMapper是一个接口，我们创建一个MapperFactoryBean实例，然后注入这个接口和sqlSessionFactory, 
+		然后MapperFactoryBean会使用SqlSessionFactory来创建SqlSession,当发现要使用多个MapperFactoryBean的时候，一个一个 
+		定义肯定非常麻烦，于是mybatis-spring提供了MapperScannerConfigurer这个类，他将会查找类路径下的映射器并自动将他们创建成MapperFactoryBean. 
+		<bean id = "empMapper" class="org.mybatis.spring.mapper.MapperFactoryBean"> 
+		<property name="mapperInterface" value="com.juno.mapper.EmpMapper"></property> 
+		<property name="sqlSessionFactory" ref="sqlSessionFactory"></property> </bean> -->
+
+	<!-- MapperScannerConfigurer 自动扫描将Mapper接口生成代理并注入到Spring -->
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="com.juno.mapper"></property>
+	</bean>
+
+
+	<bean id="jedisPoolConfig" class="redis.clients.jedis.JedisPoolConfig">
+		<property name="maxTotal" value="${redis.pool.maxActive}"></property>
+		<property name="maxIdle" value="${redis.pool.maxIdle}" />
+		<property name="testOnBorrow" value="${redis.pool.testOnBorrow}" />
+		<property name="maxWaitMillis" value="${redis.pool.maxWait}"></property>
+	</bean>
+
+	<bean id="jedisConnectionFactory"
+		class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory">
+		<property name="hostName" value="${redis.ip}" />
+		<property name="port" value="${redis.port}" />
+		<property name="poolConfig" ref="jedisPoolConfig" />
+	</bean>
+
+	<bean id="redisTemplate" class="org.springframework.data.redis.core.RedisTemplate">
+		<property name="connectionFactory" ref="jedisConnectionFactory" />
+	</bean>
+</beans>

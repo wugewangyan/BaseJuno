@@ -52,6 +52,9 @@ public class Config {
     @Value("${db.schema}")
     private String dbSchema;
     
+    @Value("${redis.ip}")
+    private String redisIp;
+    
     public String getCodeBase() {
         return codeBase;
     }
@@ -139,4 +142,12 @@ public class Config {
     public void setDbSchema(String dbSchema) {
         this.dbSchema = dbSchema;
     }
+
+	public String getRedisIp() {
+		return redisIp;
+	}
+
+	public void setRedisIp(String redisIp) {
+		this.redisIp = redisIp;
+	}
 }
